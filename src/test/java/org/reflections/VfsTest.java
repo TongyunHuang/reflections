@@ -25,16 +25,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.reflections.ReflectionsQueryTest.equalTo;
 import static org.reflections.scanners.Scanners.SubTypes;
 
-class VfsTest {
-    /**
-     * Given a jarFile, vfs should tell it to be file
-     * Given a jarFile, vfs should not say it is url or directory
-     * @throws Exception
-     */
-    @Test
-    void testJarFile() throws Exception {
-        URL url = new URL(ClasspathHelper.forClass(Logger.class).toExternalForm().replace("jar:", ""));
+public class VfsTest {
 
+    @Test
+    public void testJarFile() throws Exception {
+        URL url = new URL(ClasspathHelper.forClass(Logger.class).toExternalForm().replace("jar:", ""));
         assertTrue(url.toString().startsWith("file:"));
         assertTrue(url.toString().contains(".jar"));
 
@@ -46,13 +41,16 @@ class VfsTest {
         testVfsDir(dir);
     }
 
+<<<<<<< HEAD
     /**
      * Given a jarUrl, vfs should tell it to be url
      * Given a jarUrl, vfs should not say it is file or directory
      * @throws Exception
      */
+=======
+>>>>>>> parent of d15d0ec... vfsTest v1
     @Test
-    void testJarUrl() throws Exception {
+    public void testJarUrl() throws Exception {
         URL url = ClasspathHelper.forClass(Logger.class);
         assertTrue(url.toString().startsWith("jar:file:"));
         assertTrue(url.toString().contains(".jar!"));
@@ -65,13 +63,16 @@ class VfsTest {
         testVfsDir(dir);
     }
 
+<<<<<<< HEAD
     /**
      * Given a directory, vfs should tell it to be directory
      * Given a directory, vfs should not say it is url or file
      * @throws Exception
      */
+=======
+>>>>>>> parent of d15d0ec... vfsTest v1
     @Test
-    void testDirectory() throws Exception {
+    public void testDirectory() throws Exception {
         URL url = ClasspathHelper.forClass(getClass());
         assertTrue(url.toString().startsWith("file:"));
         assertFalse(url.toString().contains(".jar"));
@@ -84,12 +85,15 @@ class VfsTest {
         testVfsDir(dir);
     }
 
+<<<<<<< HEAD
     /**
      * vfs can tell in the givne url can be interpreted as input stream
      * @throws Exception
      */
+=======
+>>>>>>> parent of d15d0ec... vfsTest v1
     @Test
-    void testJarInputStream() throws Exception {
+    public void testJarInputStream() throws Exception {
         URL url = ClasspathHelper.forClass(Logger.class);
         assertTrue(Vfs.DefaultUrlTypes.jarInputStream.matches(url));
         try {
@@ -113,11 +117,14 @@ class VfsTest {
         }
     }
 
+<<<<<<< HEAD
     /**
      * edge case: directory with space in name
      */
+=======
+>>>>>>> parent of d15d0ec... vfsTest v1
     @Test
-    void dirWithSpaces() {
+    public void dirWithSpaces() {
         Collection<URL> urls = ClasspathHelper.forPackage("dir+with spaces");
         assertFalse(urls.isEmpty());
         for (URL url : urls) {
@@ -127,12 +134,15 @@ class VfsTest {
         }
     }
 
+<<<<<<< HEAD
     /**
      * using directory name as input
      * @throws MalformedURLException
      */
+=======
+>>>>>>> parent of d15d0ec... vfsTest v1
     @Test
-    void vfsFromDirWithJarInName() throws MalformedURLException {
+    public void vfsFromDirWithJarInName() throws MalformedURLException {
         String tmpFolder = System.getProperty("java.io.tmpdir");
         tmpFolder = tmpFolder.endsWith(File.separator) ? tmpFolder : tmpFolder + File.separator;
         String dirWithJarInName = tmpFolder + "tony.jarvis";
@@ -149,35 +159,26 @@ class VfsTest {
         }
     }
 
+<<<<<<< HEAD
     /**
      * using directory as input
      * @throws MalformedURLException
      */
+=======
+>>>>>>> parent of d15d0ec... vfsTest v1
     @Test
-    void vfsFromDirWithJarInJar() throws MalformedURLException {
+    public void vfsFromDirWithJarInJar() throws Exception {
         URL resource = ClasspathHelper.contextClassLoader().getResource("jarWithBootLibJar.jar");
         URL innerJarUrl = new URL("jar:" + resource.toExternalForm() + "!/BOOT-INF/lib/jarWithManifest.jar");
 
+        assertFalse(Vfs.DefaultUrlTypes.jarUrl.matches(innerJarUrl));
+        Vfs.Dir jarUrlDir = Vfs.DefaultUrlTypes.jarUrl.createDir(innerJarUrl);
+        assertNotEquals(innerJarUrl.getPath(), jarUrlDir.getPath());
 
-        Vfs.Dir jarUrlDir = null;
-        try {
-            assertFalse(Vfs.DefaultUrlTypes.jarUrl.matches(innerJarUrl));
-            jarUrlDir = Vfs.DefaultUrlTypes.jarUrl.createDir(innerJarUrl);
-            assertNotEquals(innerJarUrl.getPath(), jarUrlDir.getPath());
-        } catch (Exception e) {
-            //e.printStackTrace();
-        }
+        assertTrue(Vfs.DefaultUrlTypes.jarInputStream.matches(innerJarUrl));
+        Vfs.Dir jarInputStreamDir = Vfs.DefaultUrlTypes.jarInputStream.createDir(innerJarUrl);
+        assertEquals(innerJarUrl.getPath(), jarInputStreamDir.getPath());
 
-        Vfs.Dir jarInputStreamDir = null;
-        try {
-            assertTrue(Vfs.DefaultUrlTypes.jarInputStream.matches(innerJarUrl));
-            jarInputStreamDir = Vfs.DefaultUrlTypes.jarInputStream.createDir(innerJarUrl);
-            assertEquals(innerJarUrl.getPath(), jarInputStreamDir.getPath());
-        } catch (Exception e) {
-            //e.printStackTrace();
-        }
-
-        assertNotEquals(jarInputStreamDir,null);
         List<Vfs.File> files = StreamSupport.stream(jarInputStreamDir.getFiles().spliterator(), false).collect(Collectors.toList());
         assertEquals(1, files.size());
         Vfs.File file1 = files.get(0);
@@ -189,11 +190,12 @@ class VfsTest {
                 ClassFile classFile = new ClassFile(dis);
                 assertEquals("org.reflections.empty", classFile.getName());
             } catch (Exception e) {
-                //e.printStackTrace();
+                throw new RuntimeException(e);
             }
         }
     }
 
+<<<<<<< HEAD
     /**
      * url directory should be distinguished by vfs
      * @throws Exception
@@ -236,6 +238,8 @@ class VfsTest {
      * Call by testJarFile, construct directory from a file
      * @param dir
      */
+=======
+>>>>>>> parent of d15d0ec... vfsTest v1
     private void testVfsDir(Vfs.Dir dir) {
         List<Vfs.File> files = new ArrayList<>();
         for (Vfs.File file : dir.getFiles()) {
