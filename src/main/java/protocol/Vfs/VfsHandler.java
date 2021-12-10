@@ -1,4 +1,4 @@
-package sun.net.www.protocol.Vfs;
+package protocol.Vfs;
 
 import java.io.IOException;
 import java.net.URL;

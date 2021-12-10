@@ -1,18 +1,15 @@
 package org.reflections;
 
 import javassist.bytecode.ClassFile;
-import org.jboss.vfs.VirtualFile;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.reflections.ReflectionsException;
+
 
 
 import org.reflections.util.ClasspathHelper;
-import org.reflections.util.ConfigurationBuilder;
 import org.reflections.vfs.SystemDir;
-import org.reflections.vfs.UrlTypeVFS;
-//import org.reflections.vfs.CustomURLSteamHandlerFactory;
 import org.reflections.vfs.Vfs;
+import org.reflections.vfs.UrlTypeVFS;
 import org.slf4j.Logger;
 
 import java.io.BufferedInputStream;
@@ -28,11 +25,9 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static java.text.MessageFormat.format;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.reflections.ReflectionsQueryTest.equalTo;
-import static org.reflections.scanners.Scanners.SubTypes;
-import sun.net.www.protocol.Vfs.CustomURLSteamHandlerFactory;
+
+import protocol.Vfs.CustomURLSteamHandlerFactory;
 
 
 
@@ -42,7 +37,7 @@ public class VfsTest {
     @Test
     public void testJarFile() throws Exception {
         URL url = new URL(ClasspathHelper.forClass(Logger.class).toExternalForm().replace("jar:", ""));
-        System.out.println(url);
+
         assertTrue(url.toString().startsWith("file:"));
         assertTrue(url.toString().contains(".jar"));
 
@@ -92,8 +87,8 @@ public class VfsTest {
         assertTrue(Vfs.DefaultUrlTypes.jboss_vfs.matches(url));
         assertFalse(Vfs.DefaultUrlTypes.directory.matches(url));
 
-        UnsupportedEncodingException thrown = Assertions.assertThrows(UnsupportedEncodingException.class, () -> {
-            Vfs.Dir dir = Vfs.DefaultUrlTypes.jboss_vfs.createDir(url);
+        Assertions.assertThrows(UnsupportedEncodingException.class, () -> {
+            Vfs.DefaultUrlTypes.jboss_vfs.createDir(url);
         });
 
     }
@@ -108,13 +103,14 @@ public class VfsTest {
     @Test
     public void testJbossFile() throws Exception {
         URL.setURLStreamHandlerFactory(new CustomURLSteamHandlerFactory());
-        String path = "vfszip://Users/tongyun/.m2/repository/org/slf4j/slf4j-api/1.7.32/slf4j-api-1.7.32.jar!/";
+        String path = "vfszip://Users/tongyun/.m2/repository/org/slf4j/slf" +
+                "4j-api/1.7.32/slf4j-api-1.7.32.jar!/";
         URL url = new URL(path);
         UrlTypeVFS vfsUrlType = new UrlTypeVFS();
         Vfs.addDefaultURLTypes(vfsUrlType);
         assertTrue(Vfs.DefaultUrlTypes.jboss_vfsfile.matches(url));
-        ReflectionsException thrown = Assertions.assertThrows(ReflectionsException.class, () -> {
-            Vfs.Dir jboss = Vfs.fromURL(url,vfsUrlType);
+        Assertions.assertThrows(ReflectionsException.class, () -> {
+            Vfs.fromURL(url,vfsUrlType);
         });
     }
 
@@ -134,8 +130,8 @@ public class VfsTest {
         assertTrue(Vfs.DefaultUrlTypes.bundle.matches(url));
         assertFalse(Vfs.DefaultUrlTypes.directory.matches(url));
 
-        UnsupportedEncodingException thrown = Assertions.assertThrows(UnsupportedEncodingException.class, () -> {
-            Vfs.Dir dir = Vfs.DefaultUrlTypes.jboss_vfs.createDir(url);
+        Assertions.assertThrows(UnsupportedEncodingException.class, () -> {
+            Vfs.DefaultUrlTypes.jboss_vfs.createDir(url);
         });
     }
 
@@ -239,7 +235,7 @@ public class VfsTest {
      */
 
     @Test
-    public void vfsFromDirWithJarInJar() throws Exception {
+    public void vfsFromDirWithJarInJar() throws Exception  {
         URL resource = ClasspathHelper.contextClassLoader().getResource("jarWithBootLibJar.jar");
         URL innerJarUrl = new URL("jar:" + resource.toExternalForm() + "!/BOOT-INF/lib/jarWithManifest.jar");
 
@@ -261,8 +257,6 @@ public class VfsTest {
             try (DataInputStream dis = new DataInputStream(new BufferedInputStream(file.openInputStream()))) {
                 ClassFile classFile = new ClassFile(dis);
                 assertEquals("org.reflections.empty", classFile.getName());
-            } catch (Exception e) {
-                throw new RuntimeException(e);
             }
         }
     }

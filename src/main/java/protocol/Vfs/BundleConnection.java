@@ -1,6 +1,5 @@
-package sun.net.www.protocol.Vfs;
+package protocol.Vfs;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -9,14 +8,14 @@ import java.net.URLConnection;
 
 /**
  * Issue: https://github.com/ronmamo/reflections/issues/338
- * Custom url protocol for vfs
+ * Custom url protocol for bundle
  */
-public class VfsConnection extends URLConnection{
+public class BundleConnection extends URLConnection{
     /**
      * @param u url specified
      */
     //CS427 Issue link: https://github.com/ronmamo/reflections/issues/338
-    public VfsConnection(URL u){
+    public BundleConnection(URL u){
         super(u);
     }
 
