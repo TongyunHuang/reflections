@@ -132,6 +132,7 @@ public abstract class Vfs {
                 return false;
             }
         };
+        System.out.println(fileNamePredicate);
         return findFiles(inUrls, fileNamePredicate);
     }
 

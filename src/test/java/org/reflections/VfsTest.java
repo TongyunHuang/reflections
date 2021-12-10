@@ -1,16 +1,24 @@
 package org.reflections;
 
 import javassist.bytecode.ClassFile;
+import org.jboss.vfs.VirtualFile;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.reflections.ReflectionsException;
+
+
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.vfs.SystemDir;
+import org.reflections.vfs.UrlTypeVFS;
+//import org.reflections.vfs.CustomURLSteamHandlerFactory;
 import org.reflections.vfs.Vfs;
 import org.slf4j.Logger;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -24,17 +32,17 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.reflections.ReflectionsQueryTest.equalTo;
 import static org.reflections.scanners.Scanners.SubTypes;
+import sun.net.www.protocol.Vfs.CustomURLSteamHandlerFactory;
+
+
 
 public class VfsTest {
 
-<<<<<<< HEAD
-=======
-public class VfsTest {
 
->>>>>>> parent of d15d0ec... vfsTest v1
     @Test
     public void testJarFile() throws Exception {
         URL url = new URL(ClasspathHelper.forClass(Logger.class).toExternalForm().replace("jar:", ""));
+        System.out.println(url);
         assertTrue(url.toString().startsWith("file:"));
         assertTrue(url.toString().contains(".jar"));
 
@@ -45,18 +53,12 @@ public class VfsTest {
         Vfs.Dir dir = Vfs.DefaultUrlTypes.jarFile.createDir(url);
         testVfsDir(dir);
     }
-
-<<<<<<< HEAD
-<<<<<<< HEAD
     /**
      * Given a jarUrl, vfs should tell it to be url
      * Given a jarUrl, vfs should not say it is file or directory
      * @throws Exception
      */
-=======
->>>>>>> parent of d15d0ec... vfsTest v1
-=======
->>>>>>> parent of d15d0ec... vfsTest v1
+
     @Test
     public void testJarUrl() throws Exception {
         URL url = ClasspathHelper.forClass(Logger.class);
@@ -71,17 +73,80 @@ public class VfsTest {
         testVfsDir(dir);
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
+    // ###########################################################################
+
+
+    /**
+     * Given a jarUrl, vfs should tell it to be url
+     * Given a jarUrl, vfs should not say it is file or directory
+     * @throws Exception
+     */
+    //CS427 Issue link: https://github.com/ronmamo/reflections/issues/338
+    @Test
+    public void testJbossVfs() throws Exception {
+        //URL.setURLStreamHandlerFactory(new CustomURLSteamHandlerFactory());
+        String path = "vfs://Users/tongyun/.m2/repository/org/slf4j/slf4j-api/1.7.32/slf4j-api-1.7.32.jar!/";
+        URL url = new URL(path);
+
+        assertFalse(Vfs.DefaultUrlTypes.jarFile.matches(url));
+        assertTrue(Vfs.DefaultUrlTypes.jboss_vfs.matches(url));
+        assertFalse(Vfs.DefaultUrlTypes.directory.matches(url));
+
+        UnsupportedEncodingException thrown = Assertions.assertThrows(UnsupportedEncodingException.class, () -> {
+            Vfs.Dir dir = Vfs.DefaultUrlTypes.jboss_vfs.createDir(url);
+        });
+
+    }
+
+
+    /**
+     * Given a jarUrl, vfs should tell it to be url
+     * Given a jarUrl, vfs should not say it is file or directory
+     * @throws Exception
+     */
+    //CS427 Issue link: https://github.com/ronmamo/reflections/issues/338
+    @Test
+    public void testJbossFile() throws Exception {
+        URL.setURLStreamHandlerFactory(new CustomURLSteamHandlerFactory());
+        String path = "vfszip://Users/tongyun/.m2/repository/org/slf4j/slf4j-api/1.7.32/slf4j-api-1.7.32.jar!/";
+        URL url = new URL(path);
+        UrlTypeVFS vfsUrlType = new UrlTypeVFS();
+        Vfs.addDefaultURLTypes(vfsUrlType);
+        assertTrue(Vfs.DefaultUrlTypes.jboss_vfsfile.matches(url));
+        ReflectionsException thrown = Assertions.assertThrows(ReflectionsException.class, () -> {
+            Vfs.Dir jboss = Vfs.fromURL(url,vfsUrlType);
+        });
+    }
+
+    /**
+     * Given a jarUrl, vfs should tell it to be url
+     * Given a jarUrl, vfs should not say it is file or directory
+     * @throws Exception
+     */
+    //CS427 Issue link: https://github.com/ronmamo/reflections/issues/338
+    @Test
+    public void testBundle() throws Exception {
+        //URL.setURLStreamHandlerFactory(new CustomURLSteamHandlerFactory());
+        String path = "bundle://Users/tongyun/.m2/repository/org/slf4j/slf4j-api/1.7.32/slf4j-api-1.7.32.jar!/";
+        URL url = new URL(path);
+
+        assertFalse(Vfs.DefaultUrlTypes.jarFile.matches(url));
+        assertTrue(Vfs.DefaultUrlTypes.bundle.matches(url));
+        assertFalse(Vfs.DefaultUrlTypes.directory.matches(url));
+
+        UnsupportedEncodingException thrown = Assertions.assertThrows(UnsupportedEncodingException.class, () -> {
+            Vfs.Dir dir = Vfs.DefaultUrlTypes.jboss_vfs.createDir(url);
+        });
+    }
+
+
+    // ###########################################################################
     /**
      * Given a directory, vfs should tell it to be directory
      * Given a directory, vfs should not say it is url or file
      * @throws Exception
      */
-=======
->>>>>>> parent of d15d0ec... vfsTest v1
-=======
->>>>>>> parent of d15d0ec... vfsTest v1
+
     @Test
     public void testDirectory() throws Exception {
         URL url = ClasspathHelper.forClass(getClass());
@@ -96,16 +161,12 @@ public class VfsTest {
         testVfsDir(dir);
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
+
     /**
      * vfs can tell in the givne url can be interpreted as input stream
      * @throws Exception
      */
-=======
->>>>>>> parent of d15d0ec... vfsTest v1
-=======
->>>>>>> parent of d15d0ec... vfsTest v1
+
     @Test
     public void testJarInputStream() throws Exception {
         URL url = ClasspathHelper.forClass(Logger.class);
@@ -131,15 +192,11 @@ public class VfsTest {
         }
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
+
     /**
      * edge case: directory with space in name
      */
-=======
->>>>>>> parent of d15d0ec... vfsTest v1
-=======
->>>>>>> parent of d15d0ec... vfsTest v1
+
     @Test
     public void dirWithSpaces() {
         Collection<URL> urls = ClasspathHelper.forPackage("dir+with spaces");
@@ -151,16 +208,12 @@ public class VfsTest {
         }
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
+
     /**
      * using directory name as input
      * @throws MalformedURLException
      */
-=======
->>>>>>> parent of d15d0ec... vfsTest v1
-=======
->>>>>>> parent of d15d0ec... vfsTest v1
+
     @Test
     public void vfsFromDirWithJarInName() throws MalformedURLException {
         String tmpFolder = System.getProperty("java.io.tmpdir");
@@ -179,16 +232,12 @@ public class VfsTest {
         }
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
+
     /**
      * using directory as input
      * @throws MalformedURLException
      */
-=======
->>>>>>> parent of d15d0ec... vfsTest v1
-=======
->>>>>>> parent of d15d0ec... vfsTest v1
+
     @Test
     public void vfsFromDirWithJarInJar() throws Exception {
         URL resource = ClasspathHelper.contextClassLoader().getResource("jarWithBootLibJar.jar");
@@ -218,56 +267,13 @@ public class VfsTest {
         }
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    /**
-     * url directory should be distinguished by vfs
-     * @throws Exception
-     */
-    void testUrlDir() throws Exception{
-        URL url = new URL(ClasspathHelper.forClass(Logger.class).toExternalForm().replace("jar:", ""));
 
-        assertTrue(url.toString().startsWith("file:"));
-        assertTrue(url.toString().contains(".jar"));
-
-        assertFalse(urls.isEmpty());
-        for (URL url : urls) {
-            Vfs.Dir dir = Vfs.fromURL(url);
-            assertNotNull(dir);
-            assertNotNull(dir.getFiles().iterator().next());
-        }
-    }
-
-    /**
-     * ExpandSupertypes
-     *
-     * should be distinguished by vfs
-     */
-    @Test
-    public void testExpandSupertypes() {
-        ConfigurationBuilder configuration = new ConfigurationBuilder()
-                .forPackage("org.reflections")
-                .filterInputsBy(inputsFilter);
-
-        Reflections reflections = new Reflections(configuration);
-        assertThat(reflections.get(SubTypes.of(ReflectionsExpandSupertypesTest.ExpandTestModel.NotScanned.BaseInterface.class).asClass()),
-                equalTo(
-                        ReflectionsExpandSupertypesTest.ExpandTestModel.NotScanned.BaseClass.class,
-                        ReflectionsExpandSupertypesTest.ExpandTestModel.Scanned.ChildrenClass.class));
-
-        Reflections refNoExpand = new Reflections(configuration.setExpandSuperTypes(false));
-        assertThat(refNoExpand.get(SubTypes.of(ReflectionsExpandSupertypesTest.ExpandTestModel.NotScanned.BaseInterface.class).asClass()),
-                equalTo());
-    }
 
     /**
      * Call by testJarFile, construct directory from a file
      * @param dir
      */
-=======
->>>>>>> parent of d15d0ec... vfsTest v1
-=======
->>>>>>> parent of d15d0ec... vfsTest v1
+
     private void testVfsDir(Vfs.Dir dir) {
         List<Vfs.File> files = new ArrayList<>();
         for (Vfs.File file : dir.getFiles()) {
